@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Krypto Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0b0c10;
+      color: #f1c40f;
+      font-family: 'Courier New', monospace;
+    }
+
+    .chart-container {
+      height: 100vh;
+      background-color: #111;
+      margin-bottom: 2rem;
+    }
+
+    .coin-card {
+      background-color: #111;
+      border: 1px solid #f1c40f;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      color: #f1c40f;
+      text-align: center;
+    }
+
+    .coin-logo {
+      height: 40px;
+      margin-bottom: 0.5rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .header a {
+      color: #f1c40f;
+      text-decoration: none;
+      margin-left: 1rem;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+  <div class="header">
+    <div id="clock"></div>
+    <div>
+      {% if username %}
+      👋 Willkommen, {{ username }} |
+      <a href="/meine_favoriten" class="btn btn-sm btn-warning">🧡 Favoriten</a>
+      <a href="/meine_wallet" class="btn btn-sm btn-success">💼 Wallet</a>
+      <a href="/logout">Logout</a>
+      {% else %}
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+      {% endif %}
+
+
+    </div>
+  </div>
+
+
+    {% if fng %}
+  <div class="text-center my-4">
+    <div class="p-3" style="border: 1px solid #f1c40f; border-radius: 10px; background-color: #111;">
+      <h4>📊 Market Sentiment (Fear & Greed)</h4>
+      <p style="font-size: 2rem;">{{ fng.value }} - {{ fng.classification }}</p>
+    </div>
+  </div>
+  {% endif %}
+  <div class="container">
+    <div class="container text-center mb-4">
+      <div class="p-3" style="border: 1px solid #f1c40f; background-color: #111; border-radius: 12px;">
+        <h5>🌐 Aktuelle Marktdaten</h5>
+        <p>📈 Marktwert gesamt: <strong>{{ market_data.market_cap_eur }} Billion EUR</strong></p>
+        <p>🔄 Volumen (24h): <strong>{{ market_data.volume_24h_eur }} Milliarden EUR</strong></p>
+        <p>🪙 BTC Dominanz: <strong>{{ market_data.btc_dominance }}%</strong></p>
+      </div>
+    </div>
+
+    <div class="chart-container text-center">
+      <canvas id="btcChart" width="600" height="300"></canvas>
+    </div>
+
+
+    <div class="row">
+      {% for coin in coins_list %}
+      <div class="col-md-4">
+        <div class="coin-card">
+          <img src="{{ coin.image }}" alt="{{ coin.symbol }}" class="coin-logo">
+          <h5>{{ coin.name }} ({{ coin.symbol.upper() }})</h5>
+          <p>💶 EUR: €{{ coin.price_eur }}</p>
+          <p>💵 USD: ${{ coin.price_usd }}</p>
+          <p>📈 24h Änderung: {{ coin.change }}%</p>
+          {% if username %}
+          <a href="/kaufen/{{ coin.id }}" class="btn btn-outline-success btn-sm mt-2">🛒 Kaufen</a>
+          {% endif %}
+
+
+
+          {% if username %}
+          {% if coin.id not in favorites %}
+          <form action="/add_favorite" method="post">
+            <input type="hidden" name="coin" value="{{ coin.id }}">
+            <button type="submit" class="btn btn-outline-warning btn-sm mt-2">
+              🧡 Zu Favoriten hinzufügen
+            </button>
+          </form>
+          {% else %}
+          <p class="text-success fw-bold">✅ Bereits in Favoriten</p>
+          {% endif %}
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="container my-4">
+  <div class="p-3 text-center" style="border: 1px solid #f1c40f; border-radius: 10px; background-color: #111;">
+    <h5>😄 Krypto Joke of the Day</h5>
+    <p style="font-size: 1.1rem; color: #f1c40f;">{{ joke }}</p>
+  </div>
+</div>
+
+
+
+
+  <h4 class="text-warning text-center">🗞️ CryptoCompare Nachrichten</h4>
+  <div class="row">
+    {% for n in crypto_news %}
+    <div class="col-md-4 mb-3">
+      <div class="p-3" style="border: 1px solid #f1c40f; border-radius: 10px; background-color: #111;">
+        <img src="{{ n.image }}" alt="news image"
+          style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px;" class="mb-2">
+        <h6><a href="{{ n.link }}" target="_blank" style="color: #f1c40f; text-decoration: none;">
+            {{ n.title }}
+          </a></h6>
+        <p class="small text-success fw-bold">📰 {{ n.source }} | 🕒 {{ n.time }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+
+  <div class="container mt-5 mb-5">
+  <h4 class="text-warning text-center">🌍 Krypto-Handel Weltweit</h4>
+  <div id="map" style="height: 400px; border-radius: 12px;"></div>
+  </div>
+
+
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const time = now.toLocaleTimeString();
+      document.getElementById("clock").textContent = "🕒 " + time;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    async function loadBtcChart() {
+      const res = await fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=eur&days=7");
+      const json = await res.json();
+      const labels = json.prices.map(p => new Date(p[0]).toLocaleDateString('de-DE'));
+      const prices = json.prices.map(p => p[1]);
+
+      new Chart(document.getElementById('btcChart'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Bitcoin Preis (EUR)',
+            data: prices,
+            borderColor: '#f1c40f',
+            backgroundColor: '#f1c40f33',
+            tension: 0.3
+          }]
+        },
+        options: {
+          scales: {
+            x: { ticks: { color: '#f1c40f' } },
+            y: { ticks: { color: '#f1c40f' } }
+          },
+          plugins: {
+            legend: { labels: { color: '#f1c40f' } }
+          }
+        }
+      });
+    }
+    loadBtcChart();
+
+
+
+
+  
+
+
+  </script>
+
+{% if exchange_data %}
+<!-- 1. تحميل مكتبة Leaflet أولاً -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- 2. بعدين الكود اللي يستخدم L.map -->
+<script>
+  const map = L.map('map').setView([20, 0], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  const exchanges = JSON.parse('{{ exchange_data | tojson | safe }}');
+
+  exchanges.forEach(ex => {
+    L.circle([ex.lat, ex.lon], {
+      radius: 500000,
+      color: '#f1c40f',
+      fillColor: '#f1c40f55',
+      fillOpacity: 0.6
+    }).addTo(map).bindPopup(`
+      📍 <strong>${ex.name}</strong><br>
+      🌍 ${ex.country}<br>
+      💰 Volume: ${ex.volume} BTC
+    `);
+  });
+</script>
+{% endif %}
+</body>
+
+</html>
