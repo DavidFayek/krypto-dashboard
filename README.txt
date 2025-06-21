@@ -18,18 +18,18 @@ Funktionen
 
 ##Verwendete APIs
 
-| API-Anbieter        | Beschreibung                                                                                   |
-|---------------------|-----------------------------------------------------------------------------------------------|
-| **[CoinGecko](https://www.coingecko.com/de/api)**        | Hauptquelle für Preise, Charts, Marktkapitalisierung, Börsendaten               |
-| **[CryptoCompare](https://min-api.cryptocompare.com/)**  | Krypto-News (Titel, Quelle, Vorschaubild)                                       |
-| **[CoinDesk (RSS über rss2json)](https://www.coindesk.com/arc/outboundfeeds/rss/)** | Weitere Nachrichten-Quelle                                                       |
-| **[Alternative.me FNG](https://alternative.me/crypto/fear-and-greed-index/)** | Fear & Greed Index (Stimmungsbarometer des Markts)                              |
-| **[exchangerate.host](https://exchangerate.host/)**       | Umrechnung USD ↔ EUR                                                              |
-| **[Leaflet.js](https://leafletjs.com/)**                  | Interaktive Weltkarte zur Darstellung der Börsen                                 |
-| **[OpenCage Geocoder](https://opencagedata.com/)**        | Umwandlung von Länder-/Städtenamen in Geo-Koordinaten                            |
-| **[Official Joke API](https://official-joke-api.appspot.com/)** | Für zufällige Programmierer-Witze                                                |
+| API-Anbieter        | Beschreibung                                                                                   
+|---------------------|-----------------------------------------------------------------------------------------------
+| [CoinGecko](https://www.coingecko.com/de/api)          | Hauptquelle für Preise, Charts, Marktkapitalisierung, Börsendaten               
+| [CryptoCompare](https://min-api.cryptocompare.com/)    | Krypto-News (Titel, Quelle, Vorschaubild)                                       
+| [CoinDesk (RSS über rss2json)](https://www.coindesk.com/arc/outboundfeeds/rss/) | Weitere Nachrichten-Quelle                                                      
+| [Alternative.me FNG](https://alternative.me/crypto/fear-and-greed-index/) | Fear & Greed Index (Stimmungsbarometer des Markts)                              
+| [exchangerate.host](https://exchangerate.host/)         | Umrechnung USD ↔ EUR                                                              
+| [Leaflet.js](https://leafletjs.com/)                    | Interaktive Weltkarte zur Darstellung der Börsen                                 
+| [OpenCage Geocoder](https://opencagedata.com/)          | Umwandlung von Länder-/Städtenamen in Geo-Koordinaten                            
+| [Official Joke API](https://official-joke-api.appspot.com/) | Für zufällige Programmierer-Witze                                                
 
----
+
 
 Setup & Ausführung
 
@@ -39,17 +39,17 @@ Setup & Ausführung
 - Internetverbindung (für API-Zugriffe)
 
 ### Installation (lokal):
-```bash
-# Projekt klonen
-git clone https://github.com/DEIN_USERNAME/krypto-dashboard.git
+bash
+Projekt klonen
+git clone https://github.com/DavidFayek/krypto-dashboard.git
 cd krypto-dashboard
 
-# Virtuelle Umgebung (empfohlen)
+Virtuelle Umgebung
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Abhängigkeiten installieren
+Abhängigkeiten installieren
 pip install -r requirements.txt
 
-# Datenbank initialisieren & Server starten
+Datenbank initialisieren & Server starten
 python app.py
